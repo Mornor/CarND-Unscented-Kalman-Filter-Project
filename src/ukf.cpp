@@ -54,12 +54,13 @@ UKF::~UKF() {}
  * either radar or laser.
  */
 void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
-  /**
-  TODO:
+  if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
 
-  Complete this function! Make sure you switch between lidar and radar
-  measurements.
-  */
+  }
+
+  else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
+
+  }
 }
 
 /**
