@@ -100,9 +100,29 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
 	*  Prediction
 	****************************************************************************/
 
-	float dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1000000.0;
+	double dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1000000.0;
 	previous_timestamp_ = measurement_pack.timestamp_;
+	Prediction(dt);
 
+
+	/*****************************************************************************
+	*  Update
+	****************************************************************************/
+	if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
+
+	}
+
+	else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
+
+	}
+}
+
+/**
+ * Predicts sigma points, the state, and the state covariance matrix.
+ * @param {double} dt the change in time (in seconds) between the last
+ * measurement and this one.
+ */
+void UKF::Prediction(double dt) {
 	// Predict sigma points
 	for (int i = 0; i< 2*n_aug+1; i++){
 
@@ -146,32 +166,6 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
 	Xsig_pred(2,i) = v_p;
 	Xsig_pred(3,i) = yaw_p;
 	Xsig_pred(4,i) = yawd_p;
-
-
-	/*****************************************************************************
-	*  Update
-	****************************************************************************/
-	if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
-
-	}
-
-	else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
-
-	}
-}
-
-/**
- * Predicts sigma points, the state, and the state covariance matrix.
- * @param {double} delta_t the change in time (in seconds) between the last
- * measurement and this one.
- */
-void UKF::Prediction(double delta_t) {
-	/**
-	TODO:
-
-	Complete this function! Estimate the object's location. Modify the state
-	vector, x_. Predict sigma points, the state, and the state covariance matrix.
-	*/
 }
 
 /**
