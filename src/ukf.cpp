@@ -173,14 +173,7 @@ void UKF::Prediction(double dt) {
  * @param {MeasurementPackage} meas_package
  */
 void UKF::UpdateLidar(MeasurementPackage meas_package) {
-	/**
-	TODO:
-
-	Complete this function! Use lidar data to update the belief about the object's
-	position. Modify the state vector, x_, and covariance, P_.
-
-	You'll also need to calculate the lidar NIS.
-	*/
+	// TODO: Calulate the NIS
 }
 
 /**
@@ -235,4 +228,38 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
 		 0, std_radphi*std_radphi, 0,
 		 0, 0,std_radrd*std_radrd;
 	S = S + R;
+
+	// Calculate cross correlation matrix
+  	MatrixXd Tc = MatrixXd(n_x, n_z); // Cross correlation Tc
+	Tc.fill(0.0);
+	for (int i = 0; i < 2 * n_aug + 1; i++) {  //2n+1 simga points
+		// Residual
+		VectorXd z_diff = Zsig.col(i) - z_pred;
+		// Angle normalization
+		while (z_diff(1)> M_PI) z_diff(1) -= 2. * M_PI;
+		while (z_diff(1)<-M_PI) z_diff(1) += 2. * M_PI;
+
+		// State difference
+		VectorXd x_diff = Xsig_pred.col(i) - x;
+		
+		// Angle normalization
+		while (x_diff(3)> M_PI) x_diff(3) -= 2. * M_PI;
+		while (x_diff(3)<-M_PI) x_diff(3) += 2. * M_PI;
+
+		Tc = Tc + weights(i) * x_diff * z_diff.transpose();
+	}
+
+	// Kalman gain K;
+	MatrixXd K = Tc * S.inverse();
+
+	// Residual
+	VectorXd z_diff = z - z_pred;
+
+	// Angle normalization
+	while (z_diff(1)> M_PI) z_diff(1) -= 2. * M_PI;
+	while (z_diff(1)<-M_PI) z_diff(1) += 2. * M_PI;
+
+	// Update state mean and covariance matrix
+	x = x + K * z_diff;
+	P = P - K *S * K.transpose();
 }
