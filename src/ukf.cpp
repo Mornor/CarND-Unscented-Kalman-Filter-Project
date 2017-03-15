@@ -45,6 +45,9 @@ UKF::UKF() {
 	// and yaw rate Si dot)
 	int n_x = 5;
 
+	// Set measurement dimension, radar can measure r, phi, and r_dot
+  	int n_z = 3;
+
 	// Set augmented dimension
 	int n_aug_ = 7; 
 
@@ -225,8 +228,8 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
 	// Add measurement noise covariance matrix
 	MatrixXd R = MatrixXd(n_z,n_z);
 	R << std_radr*std_radr, 0, 0,
-		 0, std_radphi*std_radphi, 0,
-		 0, 0,std_radrd*std_radrd;
+		 0, std_radphi * std_radphi, 0,
+		 0, 0,std_radrd * std_radrd;
 	S = S + R;
 
 	// Calculate cross correlation matrix
@@ -261,5 +264,5 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
 
 	// Update state mean and covariance matrix
 	x = x + K * z_diff;
-	P = P - K *S * K.transpose();
+	P = P - K * S * K.transpose();
 }
