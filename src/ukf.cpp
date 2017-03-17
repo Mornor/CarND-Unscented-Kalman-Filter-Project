@@ -49,13 +49,16 @@ UKF::UKF() {
   	int n_z = 3;
 
 	// Set augmented dimension
-	int n_aug_ = 7; 
+	int n_aug = 7; 
 
 	// Sigma point spreading parameter
 	double lambda = 3 - n_aug;
 
 	// Weights vector
   	VectorXd weights = VectorXd(2*n_aug+1);
+
+  	ukf_.Init(x_, P_, F_, H_laser_, R_laser_, Q_);
+
 }
 
 UKF::~UKF() {}
@@ -64,7 +67,7 @@ UKF::~UKF() {}
  * @param {MeasurementPackage} meas_package The latest measurement data of
  * either radar or laser.
  */
-void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
+void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
 
 	/*****************************************************************************
 	*  Initialization
@@ -92,7 +95,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
             p_y = measurement_pack.raw_measurements_[1];
         }
 
-    	ekf_.x_ << p_x, p_y, v, yaw_rate, yaw_rate_dot;
+    	ukf_.x_ << p_x, p_y, v, yaw_rate, yaw_rate_dot;
 
 	}
 
