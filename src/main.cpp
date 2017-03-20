@@ -116,6 +116,10 @@ int main(int argc, char* argv[]) {
   // Create a UKF instance
   UKF ukf;
 
+  // Used to compute the RMSE later
+  vector<VectorXd> estimations;
+  vector<VectorXd> ground_truth;
+
   size_t number_of_measurements = measurement_pack_list.size();
 
   // start filtering from the second frame (the speed is unknown in the first
@@ -130,6 +134,9 @@ int main(int argc, char* argv[]) {
     out_file_ << ukf.x_(2) << "\t"; // vel_abs -est
     out_file_ << ukf.x_(3) << "\t"; // yaw_angle -est
     out_file_ << ukf.x_(4) << "\t"; // yaw_rate -est
+
+    estimations.push_back(ukf.x_);
+    ground_truth.push_back(gt_pack_list[k].gt_values_);
 
     // output the measurements
     if (measurement_pack_list[k].sensor_type_ == MeasurementPackage::LASER) {
@@ -148,6 +155,10 @@ int main(int argc, char* argv[]) {
       out_file_ << ro * sin(phi) << "\t"; // p2_meas
     }
   }
+
+   // compute the accuracy (RMSE)
+  Tools tools;
+  cout << "Accuracy - RMSE:" << endl << tools.CalculateRMSE(estimations, ground_truth) << endl;
 
   // close files
   if (out_file_.is_open()) {

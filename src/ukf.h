@@ -68,7 +68,7 @@ public:
   double previous_timestamp_;
 
   ///* Weights of sigma points
-  VectorXd weights_;
+  VectorXd weights;
 
   ///* State dimension
   int n_x;
