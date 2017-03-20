@@ -54,6 +54,10 @@ UKF::UKF() {
 	// Sigma point spreading parameter
 	double lambda = 3 - n_aug_;
 
+	// Sigma point matrix
+    Xsig_pred_ = MatrixXd(n_x_, 2 * n_aug_ + 1); //predicted 
+    Xsig_aug = MatrixXd(n_aug_, 2 * n_aug_ + 1); // augmented
+
 	// Weights vector
   	VectorXd weights = VectorXd(2 * n_aug_ +  1); 
 
