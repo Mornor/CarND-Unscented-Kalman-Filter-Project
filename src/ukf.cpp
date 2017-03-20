@@ -55,9 +55,7 @@ UKF::UKF() {
 	double lambda = 3 - n_aug;
 
 	// Weights vector
-  	VectorXd weights = VectorXd(2*n_aug+1);
-
-  	ukf_.Init(x_, P_, F_, H_laser_, R_laser_, Q_);
+  	VectorXd weights = VectorXd(2*n_aug+1); 
 
 }
 
@@ -95,10 +93,11 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
             p_y = measurement_pack.raw_measurements_[1];
         }
 
-    	ukf_.x_ << p_x, p_y, v, yaw_rate, yaw_rate_dot;
+    	x_ << p_x, p_y, v, yaw_rate, yaw_rate_dot;
 
 	}
 
+	previous_timestamp_ = measurement_pack.timestamp_;
 	is_initialized_ = true;
 	return; 
 
@@ -130,7 +129,7 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
  */
 void UKF::Prediction(double dt) {
 	// Predict sigma points
-	for (int i = 0; i< 2*n_aug+1; i++){
+	for (int i = 0; i < 2 * n_aug+1; i++){
 
 		// Extract values for better readability
 		double p_x = Xsig_aug(0,i);
