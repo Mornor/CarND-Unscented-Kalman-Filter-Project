@@ -27,10 +27,19 @@ public:
   MatrixXd P_;
 
   ///* predicted sigma points matrix
-  MatrixXd Xsig_pred_;
+  MatrixXd Xsig_pred;
 
   ///* predicted sigma points matrix
   MatrixXd Xsig_aug;
+
+  // Sensor Noise 
+  MatrixXd R_laser_;
+  MatrixXd R_radar_;
+  MatrixXd H_laser_;
+
+  ///* Sigma points
+  MatrixXd Xsig;
+  MatrixXd Zsig;
 
   ///* time when the state is true, in us
   long time_us_;
@@ -62,7 +71,9 @@ public:
   VectorXd weights_;
 
   ///* State dimension
-  int n_x_;
+  int n_x;
+
+  int n_z; 
 
   ///* Augmented state dimension
   int n_aug_;
