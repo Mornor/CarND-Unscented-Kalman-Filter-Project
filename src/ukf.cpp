@@ -49,13 +49,13 @@ UKF::UKF() {
   	int n_z = 3;
 
 	// Set augmented dimension
-	int n_aug = 7; 
+	int n_aug_ = 7; 
 
 	// Sigma point spreading parameter
-	double lambda = 3 - n_aug;
+	double lambda = 3 - n_aug_;
 
 	// Weights vector
-  	VectorXd weights = VectorXd(2*n_aug+1); 
+  	VectorXd weights = VectorXd(2 * n_aug_ +  1); 
 
 }
 
@@ -129,7 +129,7 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
  */
 void UKF::Prediction(double dt) {
 	// Predict sigma points
-	for (int i = 0; i < 2 * n_aug+1; i++){
+	for (int i = 0; i < 2 * n_aug_ + 1; i++){
 
 		// Extract values for better readability
 		double p_x = Xsig_aug(0,i);
@@ -204,7 +204,7 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
 	// TODO: Calulate the NIS
 
 	// Transform sigma points into measurement space
-	for (int i = 0; i < 2 * n_aug + 1; i++) {    //2n+1 simga points
+	for (int i = 0; i < 2 * n_aug_ + 1; i++) {    //2n+1 simga points
 
 		// extract values for better readibility
 		double p_x = Xsig_pred(0,i);
@@ -224,14 +224,14 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
 	// Mean predicted measurement
 	VectorXd z_pred = VectorXd(n_z);
 	z_pred.fill(0.0);
-	for (int i=0; i < 2*n_aug+1; i++) {
+	for (int i=0; i < 2 * n_aug_ + 1; i++) {
 			z_pred = z_pred + weights(i) * Zsig.col(i);
 	}
 
 	// Measurement covariance matrix S
 	MatrixXd S = MatrixXd(n_z,n_z);
 	S.fill(0.0);
-	for (int i = 0; i < 2 * n_aug + 1; i++) {    // 2n+1 simga points
+	for (int i = 0; i < 2 * n_aug_ + 1; i++) {    // 2n+1 simga points
 		// Residual
 		VectorXd z_diff = Zsig.col(i) - z_pred;
 
@@ -252,7 +252,7 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
 	// Calculate cross correlation matrix
   	MatrixXd Tc = MatrixXd(n_x, n_z); // Cross correlation Tc
 	Tc.fill(0.0);
-	for (int i = 0; i < 2 * n_aug + 1; i++) {  //2n+1 simga points
+	for (int i = 0; i < 2 * n_aug_ + 1; i++) {  //2n+1 simga points
 		// Residual
 		VectorXd z_diff = Zsig.col(i) - z_pred;
 		// Angle normalization
