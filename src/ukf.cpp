@@ -110,35 +110,32 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
 	*  Initialization
 	****************************************************************************/
 
-	if(!is_initialized_){
+	if(!is_initialized_) {
 
-		 // first measurement, we do not now px and py (position x and y), neither vx and vy
-        float p_x = 0; 
-        float p_y = 0;
-        float v = 0;  // Speed, magnitude of the velocity
-        float yaw_rate = 0; 
-        float yaw_rate_dot = 0; 
+        // first measurement, we do not now px and py (position x and y), neither vx and vy
+        double p_x = 0;
+        double p_y = 0;
+        double v = 0;  // Speed, magnitude of the velocity
+        double yaw_rate = 0;
+        double yaw_rate_dot = 0;
 
         if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
-            float rho = measurement_pack.raw_measurements_[0];
-            float phi = measurement_pack.raw_measurements_[1];
+            double rho = measurement_pack.raw_measurements_[0];
+            double phi = measurement_pack.raw_measurements_[1];
 
             p_x = rho * cos(phi);
             p_y = rho * sin(phi);
-        }
-    
-        else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
+        } else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
             p_x = measurement_pack.raw_measurements_[0];
             p_y = measurement_pack.raw_measurements_[1];
         }
 
-    	x_ << p_x, p_y, v, yaw_rate, yaw_rate_dot;
+        x_ << p_x, p_y, v, yaw_rate, yaw_rate_dot;
 
-	}
-
-	previous_timestamp_ = measurement_pack.timestamp_;
-	is_initialized_ = true;
-	return; 
+        previous_timestamp_ = measurement_pack.timestamp_;
+        is_initialized_ = true;
+        return;
+    }
 
 	/*****************************************************************************
 	*  Prediction
