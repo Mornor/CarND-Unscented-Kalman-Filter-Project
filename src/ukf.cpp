@@ -115,6 +115,8 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
 		 // first measurement, we do not now px and py (position x and y), neither vx and vy
         float p_x = 0; 
         float p_y = 0;
+        float v_x = 0; 
+        float v_y = 0; 
         float v = 0;  // Speed, magnitude of the velocity
         float yaw_rate = 0; 
         float yaw_rate_dot = 0; 
@@ -126,6 +128,15 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
 
             p_x = rho * cos(phi);
             p_y = rho * sin(phi);
+
+            // Compute v (magnitude of the speed), by using v_x and v_y first
+            v_x = range_rate * cos(phi);
+            v_y = range_rate * sin(phi);
+            v = sqrt(v_x * v_x + v_y * v_y);
+
+            // Compute yaw_rate, make sure it is possible by checking v_x
+            yaw_rate = fabs(v_x) > 0.0001 ? atan(v_y / v_x) : 0;
+
         }
     
         else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
