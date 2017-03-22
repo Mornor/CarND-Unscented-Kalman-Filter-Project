@@ -126,6 +126,10 @@ int main(int argc, char* argv[]) {
 	// Create a UKF instance
 	UKF ukf;
 
+	// used to compute the RMSE later
+	vector<VectorXd> estimations;
+	vector<VectorXd> ground_truth;
+
 	size_t number_of_measurements = measurement_pack_list.size();
 
 	// start filtering from the second frame (the speed is unknown in the first frame)
@@ -152,6 +156,14 @@ int main(int argc, char* argv[]) {
 	  		out_file_ << ro * cos(phi) << "\t"; // p1_meas
 	  		out_file_ << ro * sin(phi) << "\t"; // p2_meas
 		}
+
+		// output the ground truth packages
+	    out_file_ << gt_pack_list[k].gt_values_(0) << "\t";		// x_gt
+	    out_file_ << gt_pack_list[k].gt_values_(1) << "\t";		// y_gt  
+	    out_file_ << gt_pack_list[k].gt_values_(2) << "\t";		// vx_gt
+	    out_file_ << gt_pack_list[k].gt_values_(3) << "\n";		// vy_gt
+	    estimations.push_back(ukf.x_);
+    	ground_truth.push_back(gt_pack_list[k].gt_values_);
 
 	}
 
