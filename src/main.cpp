@@ -64,16 +64,16 @@ int main(int argc, char* argv[]) {
 	**********************************************/
 
 	vector<MeasurementPackage> measurement_pack_list;
+	vector<GroundTruthPackage> gt_pack_list;
 
 	string line;
 
-  	// prep the measurement packages (each line represents a measurement at a
-  	// timestamp)
-  	MeasurementPackage meas_package;
-	
+  	// prep the measurement packages (each line represents a measurement at a timestamp)
 	while (getline(in_file_, line)) {
 
 		string sensor_type;
+		MeasurementPackage meas_package;
+  		GroundTruthPackage gt_package;
 		istringstream iss(line);
 		long timestamp;
 
@@ -82,6 +82,7 @@ int main(int argc, char* argv[]) {
 
 		if (sensor_type.compare("L") == 0) {
 			meas_package.sensor_type_ = MeasurementPackage::LASER;
+			gt_package.sensor_type_ = GroundTruthPackage::LASER;
 			meas_package.raw_measurements_ = VectorXd(2);
 			float px;
 			float py;
@@ -93,6 +94,7 @@ int main(int argc, char* argv[]) {
 			measurement_pack_list.push_back(meas_package);
 		} else if (sensor_type.compare("R") == 0) {
 			meas_package.sensor_type_ = MeasurementPackage::RADAR;
+			gt_package.sensor_type_ = GroundTruthPackage::RADAR;
 			meas_package.raw_measurements_ = VectorXd(3);
 			float ro;
 			float theta;
@@ -105,6 +107,20 @@ int main(int argc, char* argv[]) {
 			meas_package.timestamp_ = timestamp;
 			measurement_pack_list.push_back(meas_package);
 		}
+
+		// read ground truth data to compare later
+		float x_gt;
+		float y_gt;
+		float vx_gt;
+		float vy_gt;
+		iss >> x_gt;
+		iss >> y_gt;
+		iss >> vx_gt;
+		iss >> vy_gt;
+		gt_package.timestamp_ = timestamp;
+		gt_package.gt_values_ = VectorXd(4);
+		gt_package.gt_values_ << x_gt, y_gt, vx_gt, vy_gt;
+		gt_pack_list.push_back(gt_package);
 	}
 
 	// Create a UKF instance
@@ -136,6 +152,7 @@ int main(int argc, char* argv[]) {
 	  		out_file_ << ro * cos(phi) << "\t"; // p1_meas
 	  		out_file_ << ro * sin(phi) << "\t"; // p2_meas
 		}
+
 	}
 
 	//Tools tools;
