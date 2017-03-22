@@ -1,10 +1,8 @@
-
 #include <iostream>
 #include "Eigen/Dense"
 #include <vector>
 #include "ukf.h"
 #include "measurement_package.h"
-#include "ground_truth_package.h"
 #include <fstream>
 #include <sstream>
 #include <stdlib.h>
@@ -116,10 +114,6 @@ int main(int argc, char* argv[]) {
   // Create a UKF instance
   UKF ukf;
 
-  // Used to compute the RMSE later
-  vector<VectorXd> estimations;
-  vector<VectorXd> ground_truth;
-
   size_t number_of_measurements = measurement_pack_list.size();
 
   // start filtering from the second frame (the speed is unknown in the first
@@ -134,9 +128,6 @@ int main(int argc, char* argv[]) {
     out_file_ << ukf.x_(2) << "\t"; // vel_abs -est
     out_file_ << ukf.x_(3) << "\t"; // yaw_angle -est
     out_file_ << ukf.x_(4) << "\t"; // yaw_rate -est
-
-    estimations.push_back(ukf.x_);
-    ground_truth.push_back(gt_pack_list[k].gt_values_);
 
     // output the measurements
     if (measurement_pack_list[k].sensor_type_ == MeasurementPackage::LASER) {
@@ -154,11 +145,9 @@ int main(int argc, char* argv[]) {
       out_file_ << ro * cos(phi) << "\t"; // p1_meas
       out_file_ << ro * sin(phi) << "\t"; // p2_meas
     }
-  }
 
-   // compute the accuracy (RMSE)
-  Tools tools;
-  cout << "Accuracy - RMSE:" << endl << tools.CalculateRMSE(estimations, ground_truth) << endl;
+    out_file_ << "\n";
+  }
 
   // close files
   if (out_file_.is_open()) {
