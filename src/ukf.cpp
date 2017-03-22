@@ -122,6 +122,7 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
         if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
             float rho = measurement_pack.raw_measurements_[0];
             float phi = measurement_pack.raw_measurements_[1];
+            float range_rate = measurement_pack.raw_measurements_[2];
 
             p_x = rho * cos(phi);
             p_y = rho * sin(phi);

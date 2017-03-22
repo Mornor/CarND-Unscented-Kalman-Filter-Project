@@ -3,6 +3,7 @@
 #include "Eigen/Dense"
 #include "measurement_package.h"
 #include "ground_truth_package.h"
+#include "tools.h"
 #include <vector>
 
 using Eigen::MatrixXd;
