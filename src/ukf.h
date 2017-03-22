@@ -3,7 +3,6 @@
 #include "Eigen/Dense"
 #include "measurement_package.h"
 #include "ground_truth_package.h"
-#include "tools.h"
 #include <vector>
 
 using Eigen::MatrixXd;
@@ -80,7 +79,7 @@ public:
   int n_aug_;
 
   ///* Sigma point spreading parameter
-  double lambda_;
+  double lambda;
 
   ///* the current NIS for radar
   double NIS_radar_;
@@ -110,7 +109,7 @@ public:
    * matrix
    * @param delta_t Time between k and k+1 in s
    */
-  void Prediction(double delta_t);
+  void Prediction(double dt);
 
   /**
    * Updates the state and the state covariance matrix using a laser measurement
