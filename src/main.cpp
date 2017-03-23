@@ -168,8 +168,8 @@ int main(int argc, char* argv[]) {
 
 	}
 
-	//Tools tools;
-	//cout << "Accuracy - RMSE:" << endl << tools.CalculateRMSE(estimations, ground_truth) << endl;
+	Tools tools;
+	cout << "Accuracy - RMSE:" << endl << tools.CalculateRMSE(estimations, ground_truth) << endl;
 
 	// close files
 	if (out_file_.is_open()) {
