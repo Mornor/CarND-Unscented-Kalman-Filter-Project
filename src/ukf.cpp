@@ -87,6 +87,14 @@ UKF::UKF() {
     Xsig_pred = MatrixXd(n_x, 2 * n_aug_ + 1); //predicted 
     Xsig_aug = MatrixXd(n_aug_, 2 * n_aug_ + 1); // augmented
 
+    // Initial state covariance matrix
+    P_ = MatrixXd(n_x, n_x);
+    P_ << 	1, 0, 0, 0, 0,
+            0, 1, 0, 0, 0,
+            0, 0, 1000, 0, 0,
+            0, 0, 0, 1000, 0,
+            0, 0, 0, 0, 1000;
+
 	// Weights vector
   	VectorXd weights = VectorXd(2 * n_aug_ +  1);
   	double weight_0 = lambda / (lambda + n_aug_);
@@ -157,8 +165,8 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
 	****************************************************************************/
 
 	double dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1000000.0;
-	previous_timestamp_ = measurement_pack.timestamp_;
 	Prediction(dt);
+	previous_timestamp_ = measurement_pack.timestamp_;
 
 
 	/*****************************************************************************
