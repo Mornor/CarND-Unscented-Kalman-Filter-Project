@@ -48,6 +48,11 @@ UKF::UKF() {
 
 	// initial covariance matrix
 	P_ = MatrixXd(5, 5);
+	P_ << 	1, 0, 0, 0, 0,
+            0, 1, 0, 0, 0,
+            0, 0, 1000, 0, 0,
+            0, 0, 0, 1000, 0,
+            0, 0, 0, 0, 1000;
 
 	// Process noise standard deviation longitudinal acceleration in m/s^2
 	std_a_ = 30;
@@ -84,16 +89,9 @@ UKF::UKF() {
 	double lambda = 3 - n_aug_;
 
 	// Sigma point matrix
-    Xsig_pred = MatrixXd(n_x, 2 * n_aug_ + 1); //predicted 
-    Xsig_aug = MatrixXd(n_aug_, 2 * n_aug_ + 1); // augmented
-
-    // Initial state covariance matrix
-    P_ = MatrixXd(n_x, n_x);
-    P_ << 	1, 0, 0, 0, 0,
-            0, 1, 0, 0, 0,
-            0, 0, 1000, 0, 0,
-            0, 0, 0, 1000, 0,
-            0, 0, 0, 0, 1000;
+	Xsig = MatrixXd(n_x, 2 * n_x + 1); 				// initial
+    Xsig_pred = MatrixXd(n_x, 2 * n_aug_ + 1); 		// predicted 
+    Xsig_aug = MatrixXd(n_aug_, 2 * n_aug_ + 1); 	// augmented
 
 	// Weights vector
   	VectorXd weights = VectorXd(2 * n_aug_ +  1);
@@ -119,6 +117,9 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
 	****************************************************************************/
 
 	if(!is_initialized_){
+
+		// Generatte sigma points
+		GenerateSigmaPoints(&Xsig);
 
 		 // first measurement, we do not now px and py (position x and y), neither vx and vy
         float p_x = 0; 
@@ -190,6 +191,21 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
 		UpdateLidar(measurement_pack);
 	}
 }
+
+void UKF::GenerateSigmaPoints(MatrixXd* Xsig_out) {
+	//set first column of sigma point matrix
+	Xsig.col(0) = x_;
+
+	// Calculate square root of P
+  	MatrixXd A = P_.llt().matrixL();
+
+  	// set remaining sigma points
+  	for (int i = 0; i < n_x; i++){
+    	Xsig.col(i+1)     = x_ + sqrt(lambda+n_x) * A.col(i);
+    	Xsig.col(i+1+n_x) = x_ - sqrt(lambda+n_x) * A.col(i);
+  	}
+}
+
 
 /**
  * Predicts sigma points, the state, and the state covariance matrix.
