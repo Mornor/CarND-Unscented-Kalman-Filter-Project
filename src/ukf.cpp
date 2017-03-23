@@ -145,6 +145,16 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
             // Compute yaw_rate, make sure it is possible by checking v_x
             yaw_rate = fabs(v_x) > 0.0001 ? atan(v_y / v_x) : 0;
 
+            if(fabs(p_x) < 0.0001){
+                p_x = 1;
+                P_(0,0) = 1000;
+            }
+            
+            if(fabs(p_y) < 0.0001){
+                p_y = 1;
+                P_(1,1) = 1000;
+            }
+
         }
     
         else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
