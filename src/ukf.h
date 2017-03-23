@@ -23,8 +23,12 @@ public:
   ///* state vector: [pos1 pos2 vel_abs yaw_angle yaw_rate] in SI units and rad
   VectorXd x_;
 
+  VectorXd x_aug;
+
   ///* state covariance matrix
   MatrixXd P_;
+
+  MatrixXd P_aug;
 
   ///* predicted sigma points matrix
   MatrixXd Xsig_pred;
@@ -124,6 +128,7 @@ public:
   void UpdateRadar(MeasurementPackage meas_package);
 
   void GenerateSigmaPoints(MatrixXd* Xsig_out);
+  void AugmentedSigmaPoints(MatrixXd* Xsig_out);
 
 };
 

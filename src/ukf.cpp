@@ -75,6 +75,13 @@ UKF::UKF() {
 	// Radar measurement noise standard deviation radius change in m/s
 	std_radrd_ = 0.3;
 
+	// Augmented state covariance
+  	MatrixXd P_aug = MatrixXd(7, 7);
+	P_aug.fill(0.0);
+	P_aug.topLeftCorner(5,5) = P_;
+	P_aug(5,5) = std_a_ * std_a_;
+	P_aug(6,6) = std_yawdd_ * std_yawdd_;
+
 	// Set state dimension (px, py, speed v (magnitude of the velocty), Si (angle of the orientation toward which the tracking object move
 	// and yaw rate Si dot)
 	int n_x = 5;
@@ -87,6 +94,9 @@ UKF::UKF() {
 
 	// Sigma point spreading parameter
 	double lambda = 3 - n_aug_;
+
+	// Augmented mean vector
+  	VectorXd x_aug = VectorXd(n_aug_);
 
 	// Sigma point matrix
 	Xsig = MatrixXd(n_x, 2 * n_x + 1); 				// initial
@@ -121,7 +131,10 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
 		// Generatte sigma points
 		GenerateSigmaPoints(&Xsig);
 
-		 // first measurement, we do not now px and py (position x and y), neither vx and vy
+		// Generate augmented sigma points matrix
+		AugmentedSigmaPoints(&Xsig_aug);
+
+		// first measurement, we do not now px and py (position x and y), neither vx and vy
         float p_x = 0; 
         float p_y = 0;
         float v_x = 0; 
@@ -204,6 +217,23 @@ void UKF::GenerateSigmaPoints(MatrixXd* Xsig_out) {
     	Xsig.col(i+1)     = x_ + sqrt(lambda+n_x) * A.col(i);
     	Xsig.col(i+1+n_x) = x_ - sqrt(lambda+n_x) * A.col(i);
   	}
+}
+
+void UKF::AugmentedSigmaPoints(MatrixXd* Xsig_out) {
+	//create augmented mean state
+	x_aug.head(5) = x_;
+	x_aug(5) = 0;
+	x_aug(6) = 0;
+
+	//create square root matrix
+	MatrixXd L = P_aug.llt().matrixL();
+
+	//create augmented sigma points
+	Xsig_aug.col(0)  = x_aug;
+	for (int i = 0; i < n_aug_; i++){
+		Xsig_aug.col(i+1)        = x_aug + sqrt(lambda+n_aug_) * L.col(i);
+		Xsig_aug.col(i+1+n_aug_) = x_aug - sqrt(lambda+n_aug_) * L.col(i);
+	}
 }
 
 
