@@ -23,14 +23,10 @@ public:
   ///* state vector: [pos1 pos2 vel_abs yaw_angle yaw_rate] in SI units and rad
   VectorXd x_;
 
-  VectorXd x_aug;
-
   ///* state covariance matrix
   MatrixXd P_;
 
-  MatrixXd P_aug;
-
-  ///* predicted sigma points matrix
+  ///* Predicted sigma points matrix
   MatrixXd Xsig_pred;
 
   ///* predicted sigma points matrix
@@ -39,11 +35,6 @@ public:
   // Sensor Noise 
   MatrixXd R_laser_;
   MatrixXd R_radar_;
-  MatrixXd H_laser_;
-
-  ///* Sigma points
-  MatrixXd Xsig;
-  MatrixXd Zsig;
 
   ///* time when the state is true, in us
   long time_us_;
@@ -71,13 +62,11 @@ public:
 
   double previous_timestamp_;
 
-  ///* Weights of sigma points
-  VectorXd weights;
-
   ///* State dimension
   int n_x;
 
-  int n_z; 
+  // Set measurement dimension, radar can measure r, phi, and r_dot
+  int n_z;
 
   ///* Augmented state dimension
   int n_aug_;
