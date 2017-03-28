@@ -109,19 +109,11 @@ UKF::~UKF() {}
  * either radar or laser.
  */
 void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
-
 	/*****************************************************************************
 	*  Initialization
 	****************************************************************************/
 
 	if(!is_initialized_){
-
-		// Generatte sigma points
-		//GenerateSigmaPoints(&Xsig);
-
-		// Generate augmented sigma points matrix
-		//AugmentedSigmaPoints(&Xsig_aug);
-
         if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
         	x_ = InitRadar(measurement_pack);
         }
@@ -153,20 +145,20 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
 	/*****************************************************************************
 	*  Update
 	****************************************************************************/
-	if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
+	/*if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
 		UpdateRadar(measurement_pack);
 	}
 
 	else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
 		UpdateLidar(measurement_pack);
-	}
+	}*/
 }
 
 /**
 * Intial Radar measurement
 */
 VectorXd UKF::InitRadar(const MeasurementPackage& measurement_pack){
-	VectorXd x = VectorXd(n_x);
+	VectorXd x = VectorXd(5);
 
 	float rho = measurement_pack.raw_measurements_[0]; 
 	float phi = measurement_pack.raw_measurements_[1]; 
