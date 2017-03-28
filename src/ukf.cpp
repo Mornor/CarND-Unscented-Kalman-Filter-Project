@@ -29,20 +29,6 @@ UKF::UKF() {
     // Radar measurement noise standard deviation radius change in m/s
     std_radrd_ = 0.5;
 
-	// Sensor matrices
-	R_laser_ = MatrixXd(2, 2);
-    R_laser_ << std_laspx_, 0,
-                0, std_laspy_;
-
-    H_laser_ = MatrixXd(2, 4);
-    H_laser_ << 1, 0, 0, 0,
-                0, 1, 0, 0;
-
-    R_radar_ = MatrixXd(3, 3);
-    R_radar_ << std_radr_ * std_radr_, 0, 0,
-            0, std_radphi_ * std_radphi_, 0,
-            0, 0, std_radrd_ * std_radrd_;
-
 	// initial state vector
 	x_ = VectorXd(5);
 
@@ -112,6 +98,20 @@ UKF::UKF() {
     	weights(i) = weight;
   	}
 
+	// Sensor matrices
+	R_laser_ = MatrixXd(2, 2);
+    R_laser_ << std_laspx_ * std_laspx_, 0,
+                0, std_laspy_ * std_laspy_;
+
+    H_laser_ = MatrixXd(2, 4);
+    H_laser_ << 1, 0, 0, 0,
+                0, 1, 0, 0;
+
+    R_radar_ = MatrixXd(3, 3);
+    R_radar_ << std_radr_ * std_radr_, 0, 0,
+            0, std_radphi_ * std_radphi_, 0,
+            0, 0, std_radrd_ * std_radrd_;
+
 }
 
 UKF::~UKF() {}
@@ -132,7 +132,7 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
 		GenerateSigmaPoints(&Xsig);
 
 		// Generate augmented sigma points matrix
-		AugmentedSigmaPoints(&Xsig_aug);
+		//AugmentedSigmaPoints(&Xsig_aug);
 
 		// first measurement, we do not now px and py (position x and y), neither vx and vy
         float p_x = 0; 
