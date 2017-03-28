@@ -117,6 +117,7 @@ public:
   void UpdateRadar(MeasurementPackage meas_package);
 
   MatrixXd AugmentedSigmaPoints();
+  MatrixXd PredictAugmentedSigmaPoints(double delta_t);
 
   VectorXd InitRadar(const MeasurementPackage &measurement_pack);
   VectorXd InitLaser(const MeasurementPackage &measurement_pack);

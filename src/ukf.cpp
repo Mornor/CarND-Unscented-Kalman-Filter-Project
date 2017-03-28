@@ -69,6 +69,10 @@ UKF::UKF() {
 	// Augmented mean vector
   	VectorXd x_aug = VectorXd(n_aug_);
 
+  	// Sigma point matrix
+    Xsig_pred = MatrixXd(n_x, 2 * n_aug_ + 1); 		// predicted 
+    Xsig_aug = MatrixXd(n_aug_, 2 * n_aug_ + 1); 	// augmented
+
   	// Initial covariance matrix
 	P_ = MatrixXd(n_x, n_x);
 
@@ -203,14 +207,67 @@ MatrixXd UKF::AugmentedSigmaPoints() {
 }
 
 
+MatrixXd UKF::PredictAugmentedSigmaPoints(double dt){
+	//create matrix with predicted sigma points as columns
+	MatrixXd Xsig_pred = MatrixXd(n_x, 2 * n_aug_ + 1);
+
+	//predict sigma points
+	for (int i = 0; i < 2 * n_aug_ + 1; i++) {
+    	//extract values for better readability
+		double p_x = Xsig_aug(0, i);
+		double p_y = Xsig_aug(1, i);
+		double v = Xsig_aug(2, i);
+		double yaw = Xsig_aug(3, i);
+		double yawd = Xsig_aug(4, i);
+		double nu_a = Xsig_aug(5, i);
+		double nu_yawdd = Xsig_aug(6, i);
+
+		//predicted state values
+		double px_p, py_p;
+
+		//avoid division by zero
+		if (fabs(yawd) > 0.001) {
+			px_p = p_x + v / yawd * (sin(yaw + yawd * dt) - sin(yaw));
+			py_p = p_y + v / yawd * (cos(yaw) - cos(yaw + yawd * dt));
+    	} else {
+      		px_p = p_x + v * dt * cos(yaw);
+      		py_p = p_y + v * dt * sin(yaw);
+    	}
+
+		double v_p = v;
+		double yaw_p = yaw + yawd * dt;
+		double yawd_p = yawd;
+
+		//add noise
+		px_p = px_p + 0.5 * nu_a * dt * dt * cos(yaw);
+		py_p = py_p + 0.5 * nu_a * dt * dt * sin(yaw);
+		v_p = v_p + nu_a * dt;
+
+		yaw_p = yaw_p + 0.5 * nu_yawdd * dt * dt;
+		yawd_p = yawd_p + nu_yawdd * dt;
+
+		//write predicted sigma point into right column
+		Xsig_pred(0, i) = px_p;
+		Xsig_pred(1, i) = py_p;
+		Xsig_pred(2, i) = v_p;
+		Xsig_pred(3, i) = yaw_p;
+		Xsig_pred(4, i) = yawd_p;
+	}
+
+	return Xsig_pred;
+}
+
 /**
  * Predicts sigma points, the state, and the state covariance matrix.
  * @param {double} dt the change in time (in seconds) between the last
  * measurement and this one.
  */
 void UKF::Prediction(double dt) {
-	// Predict sigma points
+	// Generate augmented sigma points matrix 
 	MatrixXd Xsig_aug = AugmentedSigmaPoints();
+
+	// Predict the future one usingd delta_t (dt)
+	Xsig_pred = PredictAugmentedSigmaPoints(dt);
 }
 
 /**
