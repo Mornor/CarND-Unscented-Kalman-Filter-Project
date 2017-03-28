@@ -168,22 +168,6 @@ VectorXd UKF::InitLaser(const MeasurementPackage &measurement_pack){
 	return x;
 }
 
-void UKF::GenerateSigmaPoints(MatrixXd* Xsig_out) {
-	
-	//set first column of sigma point matrix
-	/*Xsig.col(0) = x_;
-
-	// Calculate square root of P
-  	MatrixXd A = P_.llt().matrixL();
-
-  	// set remaining sigma points
-  	for (int i = 0; i < n_x; i++){
-    	Xsig.col(i+1)     = x_ + sqrt(lambda+n_x) * A.col(i);
-    	Xsig.col(i+1+n_x) = x_ - sqrt(lambda+n_x) * A.col(i);
-  	}*/
-  	return;
-}
-
 MatrixXd UKF::AugmentedSigmaPoints() {
 	// Augmented mean vector
 	VectorXd x_aug = VectorXd(n_aug_);

@@ -116,7 +116,6 @@ public:
    */
   void UpdateRadar(MeasurementPackage meas_package);
 
-  void GenerateSigmaPoints(MatrixXd* Xsig_out);
   MatrixXd AugmentedSigmaPoints();
 
   VectorXd InitRadar(const MeasurementPackage &measurement_pack);
