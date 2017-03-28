@@ -29,22 +29,11 @@ UKF::UKF() {
     // Radar measurement noise standard deviation radius change in m/s
     std_radrd_ = 0.5;
 
-	// initial state vector
-	x_ = VectorXd(5);
-
-	// initial covariance matrix
-	P_ = MatrixXd(5, 5);
-	P_ << 	1, 0, 0, 0, 0,
-            0, 1, 0, 0, 0,
-            0, 0, 1000, 0, 0,
-            0, 0, 0, 1000, 0,
-            0, 0, 0, 0, 1000;
-
 	// Process noise standard deviation longitudinal acceleration in m/s^2
-	std_a_ = 30;
+	std_a_ = 3;
 
 	// Process noise standard deviation yaw acceleration in rad/s^2
-	std_yawdd_ = 30;
+	std_yawdd_ = 0.09;
 
 	// Laser measurement noise standard deviation position1 in m
 	std_laspx_ = 0.15;
@@ -61,13 +50,6 @@ UKF::UKF() {
 	// Radar measurement noise standard deviation radius change in m/s
 	std_radrd_ = 0.3;
 
-	// Augmented state covariance
-  	MatrixXd P_aug = MatrixXd(7, 7);
-	P_aug.fill(0.0);
-	P_aug.topLeftCorner(5,5) = P_;
-	P_aug(5,5) = std_a_ * std_a_;
-	P_aug(6,6) = std_yawdd_ * std_yawdd_;
-
 	// Set state dimension (px, py, speed v (magnitude of the velocty), Si (angle of the orientation toward which the tracking object move
 	// and yaw rate Si dot)
 	int n_x = 5;
@@ -81,8 +63,14 @@ UKF::UKF() {
 	// Sigma point spreading parameter
 	double lambda = 3 - n_aug_;
 
+	// initial state vector
+	x_ = VectorXd(n_x);
+
 	// Augmented mean vector
   	VectorXd x_aug = VectorXd(n_aug_);
+
+  	// Initial covariance matrix
+	P_ = MatrixXd(n_x, n_x);
 
 	// Sigma point matrix
 	Xsig = MatrixXd(n_x, 2 * n_x + 1); 				// initial
@@ -103,14 +91,14 @@ UKF::UKF() {
     R_laser_ << std_laspx_ * std_laspx_, 0,
                 0, std_laspy_ * std_laspy_;
 
-    H_laser_ = MatrixXd(2, 4);
-    H_laser_ << 1, 0, 0, 0,
-                0, 1, 0, 0;
-
     R_radar_ = MatrixXd(3, 3);
     R_radar_ << std_radr_ * std_radr_, 0, 0,
             0, std_radphi_ * std_radphi_, 0,
             0, 0, std_radrd_ * std_radrd_;
+
+    H_laser_ = MatrixXd(2, 4);
+    H_laser_ << 1, 0, 0, 0,
+                0, 1, 0, 0;
 
 }
 
@@ -129,60 +117,29 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
 	if(!is_initialized_){
 
 		// Generatte sigma points
-		GenerateSigmaPoints(&Xsig);
+		//GenerateSigmaPoints(&Xsig);
 
 		// Generate augmented sigma points matrix
 		//AugmentedSigmaPoints(&Xsig_aug);
 
-		// first measurement, we do not now px and py (position x and y), neither vx and vy
-        float p_x = 0; 
-        float p_y = 0;
-        float v_x = 0; 
-        float v_y = 0; 
-        float v = 0;  // Speed, magnitude of the velocity
-        float yaw_rate = 0; 
-        float yaw_rate_dot = 0; 
-
         if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
-            float rho = measurement_pack.raw_measurements_[0];
-            float phi = measurement_pack.raw_measurements_[1];
-            float range_rate = measurement_pack.raw_measurements_[2];
-
-            p_x = rho * cos(phi);
-            p_y = rho * sin(phi);
-
-            // Compute v (magnitude of the speed), by using v_x and v_y first
-            v_x = range_rate * cos(phi);
-            v_y = range_rate * sin(phi);
-            v = sqrt(v_x * v_x + v_y * v_y);
-
-            // Compute yaw_rate, make sure it is possible by checking v_x
-            yaw_rate = fabs(v_x) > 0.0001 ? atan(v_y / v_x) : 0;
-
-            if(fabs(p_x) < 0.0001){
-                p_x = 1;
-                P_(0,0) = 1000;
-            }
-            
-            if(fabs(p_y) < 0.0001){
-                p_y = 1;
-                P_(1,1) = 1000;
-            }
-
+        	x_ = InitRadar(measurement_pack);
         }
     
         else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
-            p_x = measurement_pack.raw_measurements_[0];
-            p_y = measurement_pack.raw_measurements_[1];
+   			x_ = InitLaser(measurement_pack);
         }
 
-    	x_ << p_x, p_y, v, yaw_rate, yaw_rate_dot;
+        P_ << 	1, 0, 0, 0, 0,
+          		0, 1, 0, 0, 0,
+          		0, 0, 1, 0, 0,
+          		0, 0, 0, 1, 0,
+          		0, 0, 0, 0, 1;
 
+        previous_timestamp_ = measurement_pack.timestamp_;
+		is_initialized_ = true;
+		return; 
 	}
-
-	previous_timestamp_ = measurement_pack.timestamp_;
-	is_initialized_ = true;
-	return; 
 
 	/*****************************************************************************
 	*  Prediction
@@ -203,6 +160,38 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
 	else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
 		UpdateLidar(measurement_pack);
 	}
+}
+
+/**
+* Intial Radar measurement
+*/
+VectorXd UKF::InitRadar(const MeasurementPackage& measurement_pack){
+	VectorXd x = VectorXd(n_x);
+
+	float rho = measurement_pack.raw_measurements_[0]; 
+	float phi = measurement_pack.raw_measurements_[1]; 
+	float range_rate = measurement_pack.raw_measurements_[2]; 
+
+	float px = rho * cos(phi);  
+	float py = rho * sin(phi);  
+	float v = range_rate;  
+	float yaw = phi;  
+	float yawd = 0.0;
+
+	x << px, py, v, yaw, yawd;
+
+	return x;
+}
+
+/**
+* Intial Laser (Lidar) measurement
+*/
+VectorXd UKF::InitLaser(const MeasurementPackage &measurement_pack){
+	VectorXd x = VectorXd(n_x);
+	float rho = measurement_pack.raw_measurements_[0]; 
+	float phi = measurement_pack.raw_measurements_[1]; 
+	x << rho, phi, 0, 0, 0;
+	return x;
 }
 
 void UKF::GenerateSigmaPoints(MatrixXd* Xsig_out) {

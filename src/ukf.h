@@ -130,6 +130,9 @@ public:
   void GenerateSigmaPoints(MatrixXd* Xsig_out);
   void AugmentedSigmaPoints(MatrixXd* Xsig_out);
 
+  VectorXd InitRadar(const MeasurementPackage &measurement_pack);
+  VectorXd InitLaser(const MeasurementPackage &measurement_pack);
+
 };
 
 #endif /* UKF_H */
