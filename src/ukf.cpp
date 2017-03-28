@@ -72,15 +72,6 @@ UKF::UKF() {
   	// Initial covariance matrix
 	P_ = MatrixXd(n_x, n_x);
 
-	// Weights vector
-  	VectorXd weights = VectorXd(2 * n_aug_ +  1);
-  	double weight_0 = lambda / (lambda + n_aug_);
-  	weights(0) = weight_0;
-  	for (int i = 1; i < 2 * n_aug_ + 1; i++) {  //2n+1 weights
-    	double weight = 0.5 / (n_aug_ + lambda);
-    	weights(i) = weight;
-  	}
-
 	// Sensor matrices
 	R_laser_ = MatrixXd(2, 2);
     R_laser_ << std_laspx_ * std_laspx_, 0,
@@ -193,21 +184,38 @@ void UKF::GenerateSigmaPoints(MatrixXd* Xsig_out) {
   	return;
 }
 
-void UKF::AugmentedSigmaPoints(MatrixXd* Xsig_out) {
-	/*//create augmented mean state
+MatrixXd UKF::AugmentedSigmaPoints() {
+	// Augmented mean vector
+	VectorXd x_aug = VectorXd(n_aug_);
+
+	// Augmented state covariance
+	MatrixXd P_aug = MatrixXd(n_aug_, n_aug_);
+
+	// Sigma point matrix
+	MatrixXd Xsig_aug = MatrixXd(n_aug_, 2 * n_aug_ + 1);
+
+	// Augmented mean state
 	x_aug.head(5) = x_;
 	x_aug(5) = 0;
 	x_aug(6) = 0;
 
-	//create square root matrix
+	// Augmented covariance matrix
+	P_aug.fill(0.0);
+	P_aug.topLeftCorner(5, 5) = P_;
+	P_aug(5, 5) = std_a_ * std_a_;
+	P_aug(6, 6) = std_yawdd_ * std_yawdd_;
+
+	// Square root matrix
 	MatrixXd L = P_aug.llt().matrixL();
 
-	//create augmented sigma points
-	Xsig_aug.col(0)  = x_aug;
-	for (int i = 0; i < n_aug_; i++){
-		Xsig_aug.col(i+1)        = x_aug + sqrt(lambda+n_aug_) * L.col(i);
-		Xsig_aug.col(i+1+n_aug_) = x_aug - sqrt(lambda+n_aug_) * L.col(i);
-	}*/
+	// Augmented sigma points
+	Xsig_aug.col(0) = x_aug;
+	for (int i = 0; i < n_aug_; i++) {
+		Xsig_aug.col(i + 1) = x_aug + sqrt(lambda + n_aug_) * L.col(i);
+		Xsig_aug.col(i + 1 + n_aug_) = x_aug - sqrt(lambda + n_aug_) * L.col(i);
+	}
+
+  return Xsig_aug;
 }
 
 
@@ -218,7 +226,7 @@ void UKF::AugmentedSigmaPoints(MatrixXd* Xsig_out) {
  */
 void UKF::Prediction(double dt) {
 	// Predict sigma points
-	
+	MatrixXd Xsig_aug = AugmentedSigmaPoints();
 }
 
 /**
