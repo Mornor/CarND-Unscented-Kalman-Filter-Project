@@ -36,6 +36,15 @@ public:
   MatrixXd R_laser_;
   MatrixXd R_radar_;
 
+  // Mean predicted measurement for the Radar data
+  VectorXd z_pred; 
+
+  // Covariance matrix for the Radar data
+  MatrixXd S;
+
+  // Matrix for sigma points in measurement space
+  MatrixXd Zsig;
+
   ///* time when the state is true, in us
   long time_us_;
 
@@ -118,13 +127,16 @@ public:
    */
   void UpdateRadar(MeasurementPackage meas_package);
 
-  void PredictMeanAndCovariance(); 
+  void PredictMeanAndCovariance();
+  void PredictRadarMeasurement();
+  void UpdateState(const VectorXd &z);
 
   MatrixXd AugmentedSigmaPoints();
   MatrixXd PredictAugmentedSigmaPoints(double delta_t);
 
   VectorXd InitRadar(const MeasurementPackage &measurement_pack);
   VectorXd InitLaser(const MeasurementPackage &measurement_pack);
+
 
 };
 
