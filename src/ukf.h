@@ -80,6 +80,8 @@ public:
   ///* the current NIS for laser
   double NIS_laser_;
 
+  VectorXd weights;
+
   /**
    * Constructor
    */
@@ -115,6 +117,8 @@ public:
    * @param meas_package The measurement at k+1
    */
   void UpdateRadar(MeasurementPackage meas_package);
+
+  void PredictMeanAndCovariance(); 
 
   MatrixXd AugmentedSigmaPoints();
   MatrixXd PredictAugmentedSigmaPoints(double delta_t);

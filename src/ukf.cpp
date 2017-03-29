@@ -70,8 +70,8 @@ UKF::UKF() {
   	VectorXd x_aug = VectorXd(n_aug_);
 
   	// Sigma point matrix
-    Xsig_pred = MatrixXd(n_x, 2 * n_aug_ + 1); 		// predicted 
-    Xsig_aug = MatrixXd(n_aug_, 2 * n_aug_ + 1); 	// augmented
+  	Xsig_aug = MatrixXd(n_aug_, 2 * n_aug_ + 1); 	// augmented 
+    Xsig_pred = MatrixXd(n_x, 2 * n_aug_ + 1); 		// predicted (augmented one)
 
   	// Initial covariance matrix
 	P_ = MatrixXd(n_x, n_x);
@@ -85,6 +85,9 @@ UKF::UKF() {
     R_radar_ << std_radr_ * std_radr_, 0, 0,
             0, std_radphi_ * std_radphi_, 0,
             0, 0, std_radrd_ * std_radrd_;
+
+    // Vector for weights
+  	weights = VectorXd(2 * n_aug_ + 1);
 }
 
 UKF::~UKF() {}
@@ -159,6 +162,33 @@ VectorXd UKF::InitRadar(const MeasurementPackage& measurement_pack){
 	x << px, py, v, yaw, yawd;
 
 	return x;
+}
+
+void UKF::PredictMeanAndCovariance(){
+	// Set weights
+	double weight_0 = lambda / (lambda + n_aug_);
+	weights(0) = weight_0;
+	
+	for (int i=1; i < 2 * n_aug_ + 1; i++) {  //2n+1 weights
+		double weight = 0.5 / (n_aug_ + lambda);
+		weights(i) = weight;
+	}
+
+	// Predicted state mean
+	x_.fill(0.0);
+	for (int i = 0; i < 2 * n_aug_ + 1; i++) {  //iterate over sigma points
+		x_ = x_+ weights(i) * Xsig_pred.col(i);
+	}
+
+	// Predicted state covariance matrix
+	P_.fill(0.0);
+	for (int i = 0; i < 2 * n_aug_ + 1; i++) {  //iterate over sigma points
+		VectorXd x_diff = Xsig_pred.col(i) - x_; // state difference
+		//angle normalization
+		while (x_diff(3) > M_PI) x_diff(3) -= 2. * M_PI;
+		while (x_diff(3) <- M_PI) x_diff(3) += 2.* M_PI;
+		P_ = P_ + weights(i) * x_diff * x_diff.transpose() ;
+	}
 }
 
 /**
@@ -264,10 +294,13 @@ MatrixXd UKF::PredictAugmentedSigmaPoints(double dt){
  */
 void UKF::Prediction(double dt) {
 	// Generate augmented sigma points matrix 
-	MatrixXd Xsig_aug = AugmentedSigmaPoints();
+	Xsig_aug = AugmentedSigmaPoints();
 
 	// Predict the future one usingd delta_t (dt)
 	Xsig_pred = PredictAugmentedSigmaPoints(dt);
+
+	// Predict mean and covariance
+	PredictMeanAndCovariance();
 }
 
 /**
