@@ -147,9 +147,9 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
 		UpdateRadar(measurement_pack);
 	}
 
-	/*else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
+	else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
 		UpdateLidar(measurement_pack);
-	}*/
+	}
 }
 
 /**
@@ -316,7 +316,7 @@ void UKF::Prediction(double dt) {
  * Updates the state and the state covariance matrix using a laser measurement.
  * @param {MeasurementPackage} meas_package
  */
-/*void UKF::UpdateLidar(MeasurementPackage measurement_pack) {
+void UKF::UpdateLidar(MeasurementPackage measurement_pack) {
 	float rho = measurement_pack.raw_measurements_[0]; 
 	float phi = measurement_pack.raw_measurements_[1]; 
 
@@ -324,11 +324,12 @@ void UKF::Prediction(double dt) {
 	z << rho, phi; 
 
 	// Predict Lidar measurement
-	PredictLidarMeasurement(); 
+	MatrixXd Zsig;
+	Zsig = PredictLidarMeasurement(Zsig); 
 
 	// Update the state matrix x_ and the covariance matrix P_
-	//UpdateState(z);
-}*/
+	// UpdateState(z, Zsig);
+}
 
 /**
  * Updates the state and the state covariance matrix using a radar measurement.
@@ -395,7 +396,8 @@ MatrixXd UKF::PredictRadarMeasurement(MatrixXd Zsig) {
 	return Zsig; 
 }
 
-/*void UKF::PredictLidarMeasurement() {
+MatrixXd UKF::PredictLidarMeasurement(MatrixXd Zsig) {
+	Zsig = MatrixXd(n_z_lidar, 2 * n_aug_ + 1);
 	for (int i = 0; i < 2 * n_aug_ + 1; i++) { 
 		// extract values for better readibility
 		double p_x = Xsig_pred(0,i);
@@ -405,7 +407,8 @@ MatrixXd UKF::PredictRadarMeasurement(MatrixXd Zsig) {
 		Zsig(0,i) = sqrt(p_x*p_x + p_y*p_y);	//r
 		Zsig(1,i) = atan2(p_y,p_x);             //phi
 	}
-}*/
+	return Zsig;
+}
 
 void UKF::UpdateState(const VectorXd &z, MatrixXd Zsig) {
 	//Cross correlation matrix Tc

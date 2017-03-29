@@ -129,7 +129,7 @@ public:
 
   void PredictMeanAndCovariance();
   MatrixXd PredictRadarMeasurement(MatrixXd Zsig);
-  //void PredictLidarMeasurement();
+  MatrixXd PredictLidarMeasurement(MatrixXd Zsig);
   void UpdateState(const VectorXd &z, MatrixXd Zsig);
 
   MatrixXd AugmentedSigmaPoints();
