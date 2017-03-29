@@ -54,8 +54,11 @@ UKF::UKF() {
 	// and yaw rate Si dot)
 	n_x = 5;
 
-	// Set measurement dimension, radar can measure r, phi, and r_dot
-  	n_z = 3;
+	// Radar measurement dimension can measure r, phi, and r_dot
+	n_z = 3;
+
+	// Radar measurement dimension can measure r, phi, and r_dot
+  	n_z_lidar = 2;
 
 	// Set augmented dimension
 	n_aug_ = 7; 
@@ -147,9 +150,9 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
 		UpdateRadar(measurement_pack);
 	}
 
-	/*else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
+	else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
 		UpdateLidar(measurement_pack);
-	}*/
+	}
 }
 
 /**
@@ -317,7 +320,17 @@ void UKF::Prediction(double dt) {
  * @param {MeasurementPackage} meas_package
  */
 void UKF::UpdateLidar(MeasurementPackage measurement_pack) {
-	
+	float rho = measurement_pack.raw_measurements_[0]; 
+	float phi = measurement_pack.raw_measurements_[1]; 
+
+	VectorXd z = VectorXd(n_z_lidar);
+	z << rho, phi; 
+
+	// Predict Lidar measurement
+	PredictLidarMeasurement(); 
+
+	// Update the state matrix x_ and the covariance matrix P_
+	//UpdateState(z);
 }
 
 /**
@@ -341,7 +354,6 @@ void UKF::UpdateRadar(MeasurementPackage measurement_pack) {
 }
 
 void UKF::PredictRadarMeasurement() {
-
 	for (int i = 0; i < 2 * n_aug_ + 1; i++) { 
 		// extract values for better readibility
 		double p_x = Xsig_pred(0,i);
@@ -378,6 +390,18 @@ void UKF::PredictRadarMeasurement() {
 
 	//add measurement noise covariance matrix
 	S = S + R_radar_;
+}
+
+void UKF::PredictLidarMeasurement() {
+	for (int i = 0; i < 2 * n_aug_ + 1; i++) { 
+		// extract values for better readibility
+		double p_x = Xsig_pred(0,i);
+		double p_y = Xsig_pred(1,i);
+
+		// measurement model
+		Zsig(0,i) = sqrt(p_x*p_x + p_y*p_y);	//r
+		Zsig(1,i) = atan2(p_y,p_x);             //phi
+	}
 }
 
 void UKF::UpdateState(const VectorXd &z) {

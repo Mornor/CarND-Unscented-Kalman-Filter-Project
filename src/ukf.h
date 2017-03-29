@@ -77,6 +77,9 @@ public:
   // Set measurement dimension, radar can measure r, phi, and r_dot
   int n_z;
 
+  // Set measurement dimension, lidar
+  int n_z_lidar;
+
   ///* Augmented state dimension
   int n_aug_;
 
@@ -129,6 +132,7 @@ public:
 
   void PredictMeanAndCovariance();
   void PredictRadarMeasurement();
+  void PredictLidarMeasurement();
   void UpdateState(const VectorXd &z);
 
   MatrixXd AugmentedSigmaPoints();
