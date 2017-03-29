@@ -42,9 +42,6 @@ public:
   // Covariance matrix for the Radar data
   MatrixXd S;
 
-  // Matrix for sigma points in measurement space
-  MatrixXd Zsig;
-
   ///* time when the state is true, in us
   long time_us_;
 
@@ -131,9 +128,9 @@ public:
   void UpdateRadar(MeasurementPackage meas_package);
 
   void PredictMeanAndCovariance();
-  void PredictRadarMeasurement();
-  void PredictLidarMeasurement();
-  void UpdateState(const VectorXd &z);
+  MatrixXd PredictRadarMeasurement(MatrixXd Zsig);
+  //void PredictLidarMeasurement();
+  void UpdateState(const VectorXd &z, MatrixXd Zsig);
 
   MatrixXd AugmentedSigmaPoints();
   MatrixXd PredictAugmentedSigmaPoints(double delta_t);
