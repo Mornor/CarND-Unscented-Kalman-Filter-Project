@@ -35,10 +35,7 @@ public:
   // Sensor Noise 
   MatrixXd R_laser_;
   MatrixXd R_radar_;
-
-  // Covariance matrix for the Radar data
-  MatrixXd S;
-
+  
   ///* time when the state is true, in us
   long time_us_;
 
@@ -125,9 +122,9 @@ public:
   void UpdateRadar(MeasurementPackage meas_package);
 
   void PredictMeanAndCovariance();
-  void PredictRadarMeasurement(MatrixXd *Zsig, VectorXd *z_pred);
-  void PredictLidarMeasurement(MatrixXd *Zsig, VectorXd *z_pred);
-  void UpdateState(const VectorXd &z, MatrixXd Zsig, VectorXd z_pred);
+  void PredictRadarMeasurement(MatrixXd *Zsig, VectorXd *z_pred, MatrixXd *S);
+  void PredictLidarMeasurement(MatrixXd *Zsig, VectorXd *z_pred, MatrixXd *S);
+  void UpdateState(const VectorXd &z, MatrixXd Zsig, VectorXd z_pred, MatrixXd S);
 
   MatrixXd AugmentedSigmaPoints();
   MatrixXd PredictAugmentedSigmaPoints(double delta_t);
