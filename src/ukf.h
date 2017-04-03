@@ -36,9 +36,6 @@ public:
   MatrixXd R_laser_;
   MatrixXd R_radar_;
 
-  // Mean predicted measurement for the Radar data
-  //VectorXd z_pred; 
-
   // Covariance matrix for the Radar data
   MatrixXd S;
 
@@ -129,7 +126,7 @@ public:
 
   void PredictMeanAndCovariance();
   void PredictRadarMeasurement(MatrixXd *Zsig, VectorXd *z_pred);
-  MatrixXd PredictLidarMeasurement(MatrixXd Zsig);
+  void PredictLidarMeasurement(MatrixXd *Zsig, VectorXd *z_pred);
   void UpdateState(const VectorXd &z, MatrixXd Zsig, VectorXd z_pred);
 
   MatrixXd AugmentedSigmaPoints();

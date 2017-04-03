@@ -76,9 +76,6 @@ UKF::UKF() {
   	Xsig_aug = MatrixXd(n_aug_, 2 * n_aug_ + 1); 	// augmented 
     Xsig_pred = MatrixXd(n_x, 2 * n_aug_ + 1); 		// predicted (augmented one)
 
-    // Mean predicted measurement for the Radar data
-    // z_pred = VectorXd(n_z);
-
     // Covariance matrix for the Radar data
     S = MatrixXd(n_z, n_z);
 
@@ -147,9 +144,9 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
 		UpdateRadar(measurement_pack);
 	}
 
-	/*else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
+	else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
 		UpdateLidar(measurement_pack);
-	}*/
+	}
 }
 
 /**
@@ -325,10 +322,11 @@ void UKF::UpdateLidar(MeasurementPackage measurement_pack) {
 
 	// Predict Lidar measurement
 	MatrixXd Zsig;
-	Zsig = PredictLidarMeasurement(Zsig); 
+	VectorXd z_pred; 
+	PredictLidarMeasurement(&Zsig, &z_pred); 
 
 	// Update the state matrix x_ and the covariance matrix P_
-	// UpdateState(z, Zsig);
+	// UpdateState(z, Zsig, z_pred);
 }
 
 /**
@@ -398,8 +396,10 @@ void UKF::PredictRadarMeasurement(MatrixXd *Zsig_out, VectorXd *z_pred_out) {
 	*Zsig_out = Zsig;  
 }
 
-MatrixXd UKF::PredictLidarMeasurement(MatrixXd Zsig) {
-	Zsig = MatrixXd(n_z_lidar, 2 * n_aug_ + 1);
+void UKF::PredictLidarMeasurement(MatrixXd *Zsig_out, VectorXd *z_pred_out) {
+	MatrixXd Zsig = MatrixXd(n_z_lidar, 2 * n_aug_ + 1);
+	VectorXd z_pred = VectorXd(n_z);
+
 	for (int i = 0; i < 2 * n_aug_ + 1; i++) { 
 		// extract values for better readibility
 		double p_x = Xsig_pred(0,i);
@@ -409,7 +409,9 @@ MatrixXd UKF::PredictLidarMeasurement(MatrixXd Zsig) {
 		Zsig(0,i) = sqrt(p_x*p_x + p_y*p_y);	//r
 		Zsig(1,i) = atan2(p_y,p_x);             //phi
 	}
-	return Zsig;
+
+	*z_pred_out = z_pred;
+	*Zsig_out = Zsig;  
 }
 
 void UKF::UpdateState(const VectorXd &z, MatrixXd Zsig, VectorXd z_pred) {
