@@ -415,22 +415,22 @@ void UKF::PredictLidarMeasurement(MatrixXd *Zsig_out, VectorXd *z_pred_out) {
 }
 
 void UKF::UpdateState(const VectorXd &z, MatrixXd Zsig, VectorXd z_pred) {
-	//Cross correlation matrix Tc
+	// Cross correlation matrix Tc
 	MatrixXd Tc = MatrixXd(n_x, n_z);
 
-	//calculate cross correlation matrix
+	// calculate cross correlation matrix
 	Tc.fill(0.0);
 	for (int i = 0; i < 2 * n_aug_ + 1; i++) {
 		VectorXd z_diff = Zsig.col(i) - z_pred; //residual
 		
-		//angle normalization
+		// angle normalization
 		while (z_diff(1)> M_PI) z_diff(1)-=2.*M_PI;
 		while (z_diff(1)<-M_PI) z_diff(1)+=2.*M_PI;
 
 		// state difference
 		VectorXd x_diff = Xsig_pred.col(i) - x_;
 		
-		//angle normalization
+		// angle normalization
 		while (x_diff(3)> M_PI) x_diff(3)-=2.*M_PI;
 		while (x_diff(3)<-M_PI) x_diff(3)+=2.*M_PI;
 
