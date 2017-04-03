@@ -126,8 +126,8 @@ public:
   void PredictLidarMeasurement(MatrixXd *Zsig, VectorXd *z_pred, MatrixXd *S);
   void UpdateState(const VectorXd &z, MatrixXd Zsig, VectorXd z_pred, MatrixXd S);
 
-  MatrixXd AugmentedSigmaPoints();
-  MatrixXd PredictAugmentedSigmaPoints(double delta_t);
+  void AugmentedSigmaPoints();
+  void PredictAugmentedSigmaPoints(double delta_t);
 
   VectorXd InitRadar(const MeasurementPackage &measurement_pack);
   VectorXd InitLaser(const MeasurementPackage &measurement_pack);

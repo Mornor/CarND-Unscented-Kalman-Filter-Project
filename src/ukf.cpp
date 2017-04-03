@@ -205,15 +205,12 @@ VectorXd UKF::InitLaser(const MeasurementPackage &measurement_pack){
 	return x;
 }
 
-MatrixXd UKF::AugmentedSigmaPoints() {
+void UKF::AugmentedSigmaPoints() {
 	// Augmented mean vector
 	VectorXd x_aug = VectorXd(n_aug_);
 
 	// Augmented state covariance
 	MatrixXd P_aug = MatrixXd(n_aug_, n_aug_);
-
-	// Sigma point matrix
-	MatrixXd Xsig_aug = MatrixXd(n_aug_, 2 * n_aug_ + 1);
 
 	// Augmented mean state
 	x_aug.head(5) = x_;
@@ -235,15 +232,10 @@ MatrixXd UKF::AugmentedSigmaPoints() {
 		Xsig_aug.col(i + 1) = x_aug + sqrt(lambda + n_aug_) * L.col(i);
 		Xsig_aug.col(i + 1 + n_aug_) = x_aug - sqrt(lambda + n_aug_) * L.col(i);
 	}
-
-  return Xsig_aug;
 }
 
 
-MatrixXd UKF::PredictAugmentedSigmaPoints(double dt){
-	//create matrix with predicted sigma points as columns
-	MatrixXd Xsig_pred = MatrixXd(n_x, 2 * n_aug_ + 1);
-
+void UKF::PredictAugmentedSigmaPoints(double dt){
 	//predict sigma points
 	for (int i = 0; i < 2 * n_aug_ + 1; i++) {
     	//extract values for better readability
@@ -286,8 +278,6 @@ MatrixXd UKF::PredictAugmentedSigmaPoints(double dt){
 		Xsig_pred(3, i) = yaw_p;
 		Xsig_pred(4, i) = yawd_p;
 	}
-
-	return Xsig_pred;
 }
 
 /**
@@ -297,10 +287,10 @@ MatrixXd UKF::PredictAugmentedSigmaPoints(double dt){
  */
 void UKF::Prediction(double dt) {
 	// Generate augmented sigma points matrix 
-	Xsig_aug = AugmentedSigmaPoints();
+	AugmentedSigmaPoints(); // Xsig_aug 
 
 	// Predict the future one usingd delta_t (dt)
-	Xsig_pred = PredictAugmentedSigmaPoints(dt);
+	PredictAugmentedSigmaPoints(dt); // Xsig_pred
 
 	// Predict mean and covariance
 	PredictMeanAndCovariance();
@@ -441,6 +431,13 @@ void UKF::UpdateState(const VectorXd &z, MatrixXd Zsig, VectorXd z_pred, MatrixX
 	// Cross correlation matrix Tc
 	MatrixXd Tc = MatrixXd(n_x, n_z);
 
+	double weight_0 = lambda/(lambda+n_aug_);
+	weights(0) = weight_0;
+	for (int i=1; i<2*n_aug_+1; i++) {  //2n+1 weights
+		double weight = 0.5/(n_aug_+lambda);
+		weights(i) = weight;
+  	}
+
 	// calculate cross correlation matrix
 	Tc.fill(0.0);
 	for (int i = 0; i < 2 * n_aug_ + 1; i++) {
@@ -457,7 +454,7 @@ void UKF::UpdateState(const VectorXd &z, MatrixXd Zsig, VectorXd z_pred, MatrixX
 		while (x_diff(3)> M_PI) x_diff(3)-=2.*M_PI;
 		while (x_diff(3)<-M_PI) x_diff(3)+=2.*M_PI;
 
-		Tc = Tc + weights(i) * x_diff * z_diff.transpose();
+		Tc = Tc + weights(i) * x_diff * z_diff.transpose(); // Buggy line in UpdateStae for Lidar data
 	}
 
 	//Kalman gain K;
@@ -472,5 +469,5 @@ void UKF::UpdateState(const VectorXd &z, MatrixXd Zsig, VectorXd z_pred, MatrixX
 
 	//update state mean and covariance matrix
 	x_ = x_ + K * z_diff;
-	P_ = P_ - K*S*K.transpose();
+	P_ = P_ - K * S * K.transpose();
 }
