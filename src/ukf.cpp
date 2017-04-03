@@ -141,9 +141,9 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
 		UpdateRadar(measurement_pack);
 	}
 
-	/*else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
+	else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
 		UpdateLidar(measurement_pack);
-	}*/
+	}
 }
 
 /**
@@ -152,15 +152,15 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
 VectorXd UKF::InitRadar(const MeasurementPackage& measurement_pack){
 	VectorXd x = VectorXd(n_x);
 
-	float rho = measurement_pack.raw_measurements_[0]; 
-	float phi = measurement_pack.raw_measurements_[1]; 
-	float range_rate = measurement_pack.raw_measurements_[2]; 
+	double rho = measurement_pack.raw_measurements_[0]; 
+	double phi = measurement_pack.raw_measurements_[1]; 
+	double range_rate = measurement_pack.raw_measurements_[2]; 
 
-	float px = rho * cos(phi);  
-	float py = rho * sin(phi);  
-	float v = range_rate;  
-	float yaw = phi;  
-	float yawd = 0.0;
+	double px = rho * cos(phi);  
+	double py = rho * sin(phi);  
+	double v = range_rate;  
+	double yaw = phi;  
+	double yawd = 0.0;
 
 	x << px, py, v, yaw, yawd;
 
@@ -199,9 +199,9 @@ void UKF::PredictMeanAndCovariance(){
 */
 VectorXd UKF::InitLaser(const MeasurementPackage &measurement_pack){
 	VectorXd x = VectorXd(n_x);
-	float rho = measurement_pack.raw_measurements_[0]; 
-	float phi = measurement_pack.raw_measurements_[1]; 
-	x << rho, phi, 0, 0, 0;
+	double px = measurement_pack.raw_measurements_[0]; 
+	double py = measurement_pack.raw_measurements_[1]; 
+	x << px, py, 0, 0, 0;
 	return x;
 }
 
@@ -311,20 +311,20 @@ void UKF::Prediction(double dt) {
  * @param {MeasurementPackage} meas_package
  */
 void UKF::UpdateLidar(MeasurementPackage measurement_pack) {
-	float rho = measurement_pack.raw_measurements_[0]; 
-	float phi = measurement_pack.raw_measurements_[1]; 
+	double px = measurement_pack.raw_measurements_[0]; 
+	double py = measurement_pack.raw_measurements_[1]; 
 
 	VectorXd z = VectorXd(n_z_lidar);
-	z << rho, phi; 
+	z << px, py; 
 
 	// Predict Lidar measurement
 	MatrixXd Zsig;
 	VectorXd z_pred;
 	MatrixXd S;
-	PredictLidarMeasurement(&Zsig, &z_pred, &S); 
+	PredictLidarMeasurement(&Zsig, &z_pred, &S);
 
 	// Update the state matrix x_ and the covariance matrix P_
-	// UpdateState(z, Zsig, z_pred, S);
+	//UpdateState(z, Zsig, z_pred, S);
 }
 
 /**
@@ -333,9 +333,9 @@ void UKF::UpdateLidar(MeasurementPackage measurement_pack) {
  */
 void UKF::UpdateRadar(MeasurementPackage measurement_pack) {
 
-	float rho = measurement_pack.raw_measurements_[0]; 
-	float phi = measurement_pack.raw_measurements_[1]; 
-	float range_rate = measurement_pack.raw_measurements_[2]; 
+	double rho = measurement_pack.raw_measurements_[0]; 
+	double phi = measurement_pack.raw_measurements_[1]; 
+	double range_rate = measurement_pack.raw_measurements_[2]; 
 
 	VectorXd z = VectorXd(n_z);
 	z << rho, phi, range_rate;
