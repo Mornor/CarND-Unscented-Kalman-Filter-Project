@@ -324,7 +324,7 @@ void UKF::UpdateLidar(MeasurementPackage measurement_pack) {
 	PredictLidarMeasurement(&Zsig, &z_pred, &S);
 
 	// Update the state matrix x_ and the covariance matrix P_
-	//UpdateState(z, Zsig, z_pred, S);
+	// UpdateState(z, Zsig, z_pred, S);
 }
 
 /**
@@ -399,7 +399,7 @@ void UKF::PredictRadarMeasurement(MatrixXd *Zsig_out, VectorXd *z_pred_out, Matr
 
 void UKF::PredictLidarMeasurement(MatrixXd *Zsig_out, VectorXd *z_pred_out, MatrixXd *S_out) {
 	MatrixXd Zsig = MatrixXd(n_z_lidar, 2 * n_aug_ + 1);
-	VectorXd z_pred = VectorXd(n_z);
+	VectorXd z_pred = VectorXd(n_z_lidar);
 
 	for (int i = 0; i < 2 * n_aug_ + 1; i++) { 
 		// extract values for better readibility
@@ -418,7 +418,7 @@ void UKF::PredictLidarMeasurement(MatrixXd *Zsig_out, VectorXd *z_pred_out, Matr
 	}
 
 	//measurement covariance matrix
-	MatrixXd S = MatrixXd(n_z, n_z); 
+	MatrixXd S = MatrixXd(n_z_lidar, n_z_lidar);
 	S.fill(0.0);
 	for (int i = 0; i < 2 * n_aug_ + 1; i++) {  
 		VectorXd z_diff = Zsig.col(i) - z_pred; //residual
