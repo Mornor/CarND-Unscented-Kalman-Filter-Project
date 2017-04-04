@@ -362,9 +362,14 @@ void UKF::PredictRadarMeasurement(MatrixXd *Zsig_out, VectorXd *z_pred_out, Matr
 		double v2 = sin(yaw)*v;
 
 		// measurement model
-		Zsig(0,i) = sqrt(p_x*p_x + p_y*p_y);                        //r
-		Zsig(1,i) = atan2(p_y,p_x);                                 //phi
-		Zsig(2,i) = (p_x*v1 + p_y*v2 ) / sqrt(p_x*p_x + p_y*p_y);   //r_dot
+		Zsig(0,i) = sqrt(p_x*p_x + p_y*p_y);	//r
+		Zsig(1,i) = atan2(p_y,p_x);				//phi 			
+		// Avoid division by zero                                
+		if (Zsig(0, i) != 0) {
+			Zsig(2, i) = (p_x * v1 + p_y * v2) / Zsig(0, i);  		//r_dot
+		} else {
+			Zsig(2, i) = 0;
+		}
 	}
 
 	//mean predicted measurement
