@@ -124,7 +124,7 @@ public:
   void PredictMeanAndCovariance();
   void PredictRadarMeasurement(MatrixXd *Zsig, VectorXd *z_pred, MatrixXd *S);
   void PredictLidarMeasurement(MatrixXd *Zsig, VectorXd *z_pred, MatrixXd *S);
-  void UpdateState(const VectorXd &z, MatrixXd Zsig, VectorXd z_pred, MatrixXd S);
+  void UpdateState(const VectorXd &z, MatrixXd Zsig, VectorXd z_pred, MatrixXd S, int src_dimension);
 
   void AugmentedSigmaPoints();
   void PredictAugmentedSigmaPoints(double delta_t);

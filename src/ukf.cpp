@@ -314,7 +314,7 @@ void UKF::UpdateLidar(MeasurementPackage measurement_pack) {
 	PredictLidarMeasurement(&Zsig, &z_pred, &S);
 
 	// Update the state matrix x_ and the covariance matrix P_
-	// UpdateState(z, Zsig, z_pred, S);
+	UpdateState(z, Zsig, z_pred, S, n_z_lidar);
 
 	// update NIS
   	NIS_laser_ = (measurement_pack.raw_measurements_-z_pred).transpose()*S.inverse()*(measurement_pack.raw_measurements_-z_pred);
@@ -340,7 +340,7 @@ void UKF::UpdateRadar(MeasurementPackage measurement_pack) {
 	PredictRadarMeasurement(&Zsig, &z_pred, &S);
 
 	// Update the state matrix x_ and the covariance matrix P_
-	UpdateState(z, Zsig, z_pred, S);
+	UpdateState(z, Zsig, z_pred, S, n_z);
 
 	// Update NIS
 	NIS_radar_ = (measurement_pack.raw_measurements_-z_pred).transpose()*S.inverse()*(measurement_pack.raw_measurements_-z_pred);
@@ -429,9 +429,9 @@ void UKF::PredictLidarMeasurement(MatrixXd *Zsig_out, VectorXd *z_pred_out, Matr
 	*S_out = S;
 }
 
-void UKF::UpdateState(const VectorXd &z, MatrixXd Zsig, VectorXd z_pred, MatrixXd S) {
+void UKF::UpdateState(const VectorXd &z, MatrixXd Zsig, VectorXd z_pred, MatrixXd S, int src_dimension) {
 	// Cross correlation matrix Tc
-	MatrixXd Tc = MatrixXd(n_x, n_z);
+	MatrixXd Tc = MatrixXd(n_x, src_dimension);
 
 	double weight_0 = lambda/(lambda+n_aug_);
 	weights(0) = weight_0;
