@@ -286,7 +286,7 @@ void UKF::PredictAugmentedSigmaPoints(double dt){
  * measurement and this one.
  */
 void UKF::Prediction(double dt) {
-	// Generate augmented sigma points matrix 
+	// Generate augmented sigma points matrix
 	AugmentedSigmaPoints(); // Xsig_aug 
 
 	// Predict the future one usingd delta_t (dt)
@@ -314,7 +314,7 @@ void UKF::UpdateLidar(MeasurementPackage measurement_pack) {
 	PredictLidarMeasurement(&Zsig, &z_pred, &S);
 
 	// Update the state matrix x_ and the covariance matrix P_
-	// UpdateState(z, Zsig, z_pred, S);
+	UpdateState(z, Zsig, z_pred, S);
 }
 
 /**
@@ -392,18 +392,14 @@ void UKF::PredictLidarMeasurement(MatrixXd *Zsig_out, VectorXd *z_pred_out, Matr
 	VectorXd z_pred = VectorXd(n_z_lidar);
 
 	for (int i = 0; i < 2 * n_aug_ + 1; i++) { 
-		// extract values for better readibility
-		double p_x = Xsig_pred(0,i);
-		double p_y = Xsig_pred(1,i);
-
 		// measurement model
-		Zsig(0,i) = sqrt(p_x*p_x + p_y*p_y);	//r
-		Zsig(1,i) = atan2(p_y,p_x);             //phi
+		Zsig(0,i) = Xsig_pred(0,i); // px
+		Zsig(1,i) = Xsig_pred(1,i); // py
 	}
 
 	//mean predicted measurement
 	z_pred.fill(0.0);
-	for (int i=0; i < 2*n_aug_+1; i++) {
+	for (int i=0; i < 2 * n_aug_+1; i++) {
 		z_pred = z_pred + weights(i) * Zsig.col(i);
 	}
 
@@ -413,8 +409,8 @@ void UKF::PredictLidarMeasurement(MatrixXd *Zsig_out, VectorXd *z_pred_out, Matr
 	for (int i = 0; i < 2 * n_aug_ + 1; i++) {  
 		VectorXd z_diff = Zsig.col(i) - z_pred; //residual
 		//angle normalization
-		while (z_diff(1)> M_PI) z_diff(1)-=2.*M_PI;
-		while (z_diff(1)<-M_PI) z_diff(1)+=2.*M_PI;
+		while (z_diff(1) > M_PI) z_diff(1)-=2. * M_PI;
+		while (z_diff(1) < -M_PI) z_diff(1)+=2. * M_PI;
 
 		S = S + weights(i) * z_diff * z_diff.transpose();
 	}
