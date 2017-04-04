@@ -57,7 +57,7 @@ UKF::UKF() {
 	// Radar measurement dimension can measure r, phi, and r_dot
 	n_z = 3;
 
-	// Radar measurement dimension can measure r, phi, and r_dot
+	// Lidar can only measure px and py
   	n_z_lidar = 2;
 
 	// Set augmented dimension
