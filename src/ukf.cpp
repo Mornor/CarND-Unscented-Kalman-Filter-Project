@@ -314,7 +314,10 @@ void UKF::UpdateLidar(MeasurementPackage measurement_pack) {
 	PredictLidarMeasurement(&Zsig, &z_pred, &S);
 
 	// Update the state matrix x_ and the covariance matrix P_
-	UpdateState(z, Zsig, z_pred, S);
+	// UpdateState(z, Zsig, z_pred, S);
+
+	// update NIS
+  	NIS_laser_ = (measurement_pack.raw_measurements_-z_pred).transpose()*S.inverse()*(measurement_pack.raw_measurements_-z_pred);
 }
 
 /**
@@ -338,6 +341,9 @@ void UKF::UpdateRadar(MeasurementPackage measurement_pack) {
 
 	// Update the state matrix x_ and the covariance matrix P_
 	UpdateState(z, Zsig, z_pred, S);
+
+	// Update NIS
+	NIS_radar_ = (measurement_pack.raw_measurements_-z_pred).transpose()*S.inverse()*(measurement_pack.raw_measurements_-z_pred);
 }
 
 void UKF::PredictRadarMeasurement(MatrixXd *Zsig_out, VectorXd *z_pred_out, MatrixXd *S_out) {
