@@ -6,14 +6,15 @@
 
 ### Overview
 This is the 7th project of the [Self Driving Car Engineer Nanodegree](https://www.udacity.com/course/self-driving-car-engineer-nanodegree--nd013) I am taking part. <br>
-The aim of this project was to build a UKF (Extended Kalman Filter) in order to track the movement from both a Radar and a Lidar.
+The aim of this project was to build a UKF (Unscented Kalman Filter) in order to track the trajectory from both a Radar and a Lidar.
 
 ### Results
-Here are the measurment that are given to the UKF algorithm. For the sake of comprehension, I also plotted the 'ground truth' which corresponds to the actual movement observed. 
+Here are the measurment that are given to the UKF algorithm. For the sake of comprehension, I also plotted the 'ground truth' which corresponds to the actual trajectory observed. 
 ![measurements](output_images/meas_gt.png)
 Below is the result of the UKF, based solely on the measurements from Lidar and Radar data that it has received: 
 ![ukf](output_images/UKF_result.png)
 We can see that the UKF is very precise and correctly predicted the trajectroy observed. 
+
 ---
 
 ## Dependencies
