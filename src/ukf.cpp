@@ -438,13 +438,6 @@ void UKF::UpdateState(const VectorXd &z, MatrixXd Zsig, VectorXd z_pred, MatrixX
 	// Cross correlation matrix Tc
 	MatrixXd Tc = MatrixXd(n_x, src_dimension);
 
-	double weight_0 = lambda/(lambda+n_aug_);
-	weights(0) = weight_0;
-	for (int i=1; i<2*n_aug_+1; i++) {  //2n+1 weights
-		double weight = 0.5/(n_aug_+lambda);
-		weights(i) = weight;
-  	}
-
 	// calculate cross correlation matrix
 	Tc.fill(0.0);
 	for (int i = 0; i < 2 * n_aug_ + 1; i++) {
