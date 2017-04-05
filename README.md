@@ -11,8 +11,12 @@ The aim of this project was to build a UKF (Unscented Kalman Filter) in order to
 ### Results
 Here are the measurment that are given to the UKF algorithm. For the sake of comprehension, I also plotted the 'ground truth' which corresponds to the actual trajectory observed. 
 ![measurements](output_images/meas_gt.png)
+
+
 Below is the result of the UKF, based solely on the measurements from Lidar and Radar data that it has received: 
 ![ukf](output_images/UKF_result.png)
+
+
 We can see that the UKF is very precise and correctly predicted the trajectroy observed. 
 
 ---
