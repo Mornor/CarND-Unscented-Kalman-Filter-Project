@@ -70,7 +70,7 @@ UKF::UKF() {
 	x_ = VectorXd(n_x);
 
 	// Augmented mean vector
-  	VectorXd x_aug = VectorXd(n_aug_);
+  	x_aug = VectorXd(n_aug_);
 
   	// Sigma point matrix
   	Xsig_aug = MatrixXd(n_aug_, 2 * n_aug_ + 1); 	// augmented 
@@ -85,9 +85,9 @@ UKF::UKF() {
                 0, std_laspy_ * std_laspy_;
 
     R_radar_ = MatrixXd(3, 3);
-    R_radar_ << std_radr_ * std_radr_, 0, 0,
-            0, std_radphi_ * std_radphi_, 0,
-            0, 0, std_radrd_ * std_radrd_;
+    R_radar_ <<	std_radr_ * std_radr_, 0, 0,
+				0, std_radphi_ * std_radphi_, 0,
+				0, 0, std_radrd_ * std_radrd_;
 
     // Vector for weights
   	weights = VectorXd(2 * n_aug_ + 1);
@@ -207,7 +207,7 @@ VectorXd UKF::InitLaser(const MeasurementPackage &measurement_pack){
 
 void UKF::AugmentedSigmaPoints() {
 	// Augmented mean vector
-	VectorXd x_aug = VectorXd(n_aug_);
+	x_aug = VectorXd(n_aug_);
 
 	// Augmented state covariance
 	MatrixXd P_aug = MatrixXd(n_aug_, n_aug_);

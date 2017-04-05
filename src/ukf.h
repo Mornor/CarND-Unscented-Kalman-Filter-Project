@@ -32,6 +32,9 @@ public:
   ///* predicted sigma points matrix
   MatrixXd Xsig_aug;
 
+  // Augmented mean vector
+  VectorXd x_aug;
+
   // Sensor Noise 
   MatrixXd R_laser_;
   MatrixXd R_radar_;
