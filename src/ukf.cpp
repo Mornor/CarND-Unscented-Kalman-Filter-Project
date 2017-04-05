@@ -130,6 +130,13 @@ void UKF::ProcessMeasurement(MeasurementPackage measurement_pack) {
 	****************************************************************************/
 
 	double dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1000000.0;
+
+	// Dividing large time steps into smaller prediction intervals helps to maintain numerical stability.
+	while (dt > 0.1){
+		Prediction(0.05);
+		dt -= 0.05;
+	}
+	
 	Prediction(dt);
 	previous_timestamp_ = measurement_pack.timestamp_;
 
@@ -186,11 +193,11 @@ void UKF::PredictMeanAndCovariance(){
 	// Predicted state covariance matrix
 	P_.fill(0.0);
 	for (int i = 0; i < 2 * n_aug_ + 1; i++) {  //iterate over sigma points
-		VectorXd x_diff = Xsig_pred.col(i) - x_; // state difference
+		VectorXd x_diff = Xsig_pred.col(i) - x_; // state difference VectorXd x_diff = Xsig_pred.col(i) - x_
 		//angle normalization
 		while (x_diff(3) > M_PI) x_diff(3) -= 2. * M_PI;
 		while (x_diff(3) <- M_PI) x_diff(3) += 2.* M_PI;
-		P_ = P_ + weights(i) * x_diff * x_diff.transpose() ;
+		P_ = P_ + weights(i) * x_diff * x_diff.transpose();
 	}
 }
 
@@ -417,8 +424,8 @@ void UKF::PredictLidarMeasurement(MatrixXd *Zsig_out, VectorXd *z_pred_out, Matr
 	//measurement covariance matrix
 	MatrixXd S = MatrixXd(n_z_lidar, n_z_lidar);
 	S.fill(0.0);
-	for (int i = 0; i < 2 * n_aug_ + 1; i++) {  
-		VectorXd z_diff = Zsig.col(i) - z_pred; //residual
+	for (int i = 0; i < 2 * n_aug_ + 1; i++) { // for (int i = 1; i < 2 * n_aug_ + 1; i++)  
+		VectorXd z_diff = Zsig.col(i) - z_pred; //residual VectorXd z_diff = Zsig.col(i) - z_pred
 		//angle normalization
 		while (z_diff(1) > M_PI) z_diff(1)-=2. * M_PI;
 		while (z_diff(1) < -M_PI) z_diff(1)+=2. * M_PI;
