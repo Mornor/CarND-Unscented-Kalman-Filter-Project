@@ -19,6 +19,9 @@ Below is the result of the UKF, based solely on the measurements from Lidar and 
 
 We can see that the UKF is very precise and correctly predicted the trajectroy observed. 
 
+For the sake of completness, the following image is stacking all the above-mentionned image:  
+![all](output_images/all_in_one.png)
+
 ---
 
 ## Dependencies
